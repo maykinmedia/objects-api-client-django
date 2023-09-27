@@ -1,0 +1,9 @@
+include *.rst
+include LICENSE
+include objectsapiclient/py.typed
+recursive-include objectsapiclient *.html
+recursive-include objectsapiclient *.txt
+recursive-include objectsapiclient *.po
+global-exclude __pycache__
+global-exclude *.py[co]
+
