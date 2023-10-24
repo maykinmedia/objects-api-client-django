@@ -58,3 +58,14 @@ class Client:
         results = self.object_types_api.list("objecttype")["results"]
         return factory(ObjectType, results)
 
+    def get_objects_by_bsn(self, object_type_uuid, ordering, data_attrs):
+        ot_url = self.object_type_uuid_to_url(object_type_uuid)
+        results = self.objects_api.list(
+            "object",
+            params={
+                "type": ot_url,
+                "ordering": ordering,
+                "data_attrs": data_attrs,
+            },
+        )["results"]
+        return factory(Object, results)
