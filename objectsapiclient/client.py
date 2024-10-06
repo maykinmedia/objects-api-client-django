@@ -33,7 +33,7 @@ class Client:
         return (False, message)
 
     def object_type_uuid_to_url(self, uuid):
-        return "{}objecttype/{}/".format(self.object_types_api.base_url, uuid)
+        return "{}objecttype/{}/".format(self.object_types_api.api_root, uuid)
 
     def get_objects(self, object_type_uuid=None) -> list:
         """
