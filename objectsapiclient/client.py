@@ -47,12 +47,23 @@ class Client:
         if object_type_uuid:
             ot_url = self.object_type_uuid_to_url(object_type_uuid)
             params["type"] = ot_url
-        
+
         if data_attrs:
             params["data_attrs"] = data_attrs
 
         results = self.objects_api.list("object", params=params or None)["results"]
         return factory(Object, results)
+
+    def get_object(
+        self, uuid: str
+    ) -> Object:
+        """
+        Retrieve a single Object from the Objects API via its UUID.
+
+        :returns: Returns a single Object dataclasses
+        """
+        result = self.objects_api.retrieve("object", uuid=uuid)
+        return factory(Object, result)
 
     def get_object_types(self) -> list:
         """
@@ -62,4 +73,3 @@ class Client:
         """
         results = self.object_types_api.list("objecttype")["results"]
         return factory(ObjectType, results)
-
