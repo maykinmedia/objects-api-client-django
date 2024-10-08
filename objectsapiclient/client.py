@@ -1,5 +1,6 @@
 import logging
 from typing import Tuple
+import uuid
 
 from requests.exceptions import HTTPError
 
@@ -35,18 +36,22 @@ class Client:
     def object_type_uuid_to_url(self, uuid):
         return "{}objecttype/{}/".format(self.object_types_api.api_root, uuid)
 
-    def get_objects(self, object_type_uuid=None) -> list:
+    def get_objects(self, object_type_uuid: None | str  = None, data_attrs: str | list[str] | None = None) -> list:
         """
         Retrieve all available Objects from the Objects API.
         Generally you'd want to filter the results to a single ObjectType UUID.
 
         :returns: Returns a list of Object dataclasses
         """
+        params = {}
         if object_type_uuid:
             ot_url = self.object_type_uuid_to_url(object_type_uuid)
-            results = self.objects_api.list("object", params={"type": ot_url})["results"]
-        else:
-            results = self.objects_api.list("object")["results"]
+            params["type"] = ot_url
+        
+        if data_attrs:
+            params["data_attrs"] = data_attrs
+
+        results = self.objects_api.list("object", params=params or None)["results"]
         return factory(Object, results)
 
     def get_object_types(self) -> list:
