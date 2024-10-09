@@ -54,6 +54,15 @@ class Client:
         results = self.objects_api.list("object", params=params or None)["results"]
         return factory(Object, results)
 
+    def partial_update_object(self, uuid: str, data: dict) -> Object:
+        """
+        Partially update a single Object from the Objects API via its UUID.
+
+        :returns: Returns a single Object dataclasses of the updated object.
+        """
+        result = self.objects_api.partial_update("object", data, uuid=uuid)
+        return factory(Object, result)
+
     def get_object(
         self, uuid: str
     ) -> Object:
