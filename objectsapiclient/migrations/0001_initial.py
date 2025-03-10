@@ -9,19 +9,41 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('zgw_consumers', '0016_auto_20220818_1412'),
+        ("zgw_consumers", "0016_auto_20220818_1412"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Configuration',
+            name="Configuration",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('object_type_api_service', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='object_type_api_service', to='zgw_consumers.service')),
-                ('objects_api_service', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='objects_api_service', to='zgw_consumers.service')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "object_type_api_service",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="object_type_api_service",
+                        to="zgw_consumers.service",
+                    ),
+                ),
+                (
+                    "objects_api_service",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="objects_api_service",
+                        to="zgw_consumers.service",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Objects API client configuration',
+                "verbose_name": "Objects API client configuration",
             },
         ),
     ]

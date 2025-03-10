@@ -1,2 +1,3 @@
+# TODO
 def test_objects_api():
-    pass
+    assert True

@@ -1,5 +1,4 @@
-from dataclasses import dataclass, field
-from datetime import date, datetime
+from dataclasses import dataclass
 
 
 @dataclass
@@ -13,6 +12,7 @@ class ObjectRecord:
     registrationAt: str
     correctionFor: str
     correctedBy: str
+
 
 @dataclass
 class Object:
@@ -55,4 +55,3 @@ class ObjectType:
     modified_at: str
     allow_geometry: bool
     versions: list
-

@@ -2,9 +2,9 @@ import logging
 from typing import Tuple
 
 from requests.exceptions import HTTPError
-from zgw_consumers.api_models.base import ZGWModel, factory
+from zgw_consumers.api_models.base import factory
 
-from .dataclasses import Object, ObjectRecord, ObjectType, ObjectTypeVersion
+from .dataclasses import Object, ObjectType
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,9 @@ class Client:
         """
         if object_type_uuid:
             ot_url = self.object_type_uuid_to_url(object_type_uuid)
-            results = self.objects_api.list("object", params={"type": ot_url})["results"]
+            results = self.objects_api.list("object", params={"type": ot_url})[
+                "results"
+            ]
         else:
             results = self.objects_api.list("object")["results"]
         return factory(Object, results)
@@ -57,4 +59,3 @@ class Client:
         """
         results = self.object_types_api.list("objecttype")["results"]
         return factory(ObjectType, results)
-

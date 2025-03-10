@@ -7,19 +7,31 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('zgw_consumers', '0016_auto_20220818_1412'),
-        ('objectsapiclient', '0001_initial'),
+        ("zgw_consumers", "0016_auto_20220818_1412"),
+        ("objectsapiclient", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='configuration',
-            name='object_type_api_service',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='object_type_api_service', to='zgw_consumers.service'),
+            model_name="configuration",
+            name="object_type_api_service",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="object_type_api_service",
+                to="zgw_consumers.service",
+            ),
         ),
         migrations.AlterField(
-            model_name='configuration',
-            name='objects_api_service',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='objects_api_service', to='zgw_consumers.service'),
+            model_name="configuration",
+            name="objects_api_service",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="objects_api_service",
+                to="zgw_consumers.service",
+            ),
         ),
     ]
