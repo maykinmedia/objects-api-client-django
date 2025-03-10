@@ -1,8 +1,10 @@
 import logging
 from typing import Tuple
+from urllib.parse import urljoin
 
 from requests.exceptions import HTTPError
 from zgw_consumers.api_models.base import factory
+from zgw_consumers.client import build_client as build_zgw_client
 
 from .dataclasses import Object, ObjectType
 
@@ -10,12 +12,14 @@ logger = logging.getLogger(__name__)
 
 
 class Client:
-    def __init__(self, objects_api, object_types_api):
-        self.objects_api = objects_api.build_client()
-        self.object_types_api = object_types_api.build_client()
+    def __init__(self, objects_api_service, object_types_api_service):
+        self.objects_api_client = build_zgw_client(service=objects_api_service)
+        self.object_types_api_client = build_zgw_client(
+            service=object_types_api_service
+        )
 
     def has_config(self) -> bool:
-        return self.objects_api and self.object_types_api
+        return self.objects_api_client and self.object_types_api_client
 
     def is_healthy(self) -> Tuple[bool, str]:
         """ """
@@ -33,7 +37,7 @@ class Client:
         return (False, message)
 
     def object_type_uuid_to_url(self, uuid):
-        return "{}objecttype/{}/".format(self.object_types_api.api_root, uuid)
+        return "{}objecttypes/{}/".format(self.object_types_api_client.base_url, uuid)
 
     def get_objects(self, object_type_uuid=None) -> list:
         """
@@ -44,12 +48,20 @@ class Client:
         """
         if object_type_uuid:
             ot_url = self.object_type_uuid_to_url(object_type_uuid)
-            results = self.objects_api.list("object", params={"type": ot_url})[
-                "results"
-            ]
+            response = self.objects_api_client.request(
+                "get",
+                urljoin(base=self.objects_api_client.base_url, url="objects"),
+                params={"type": ot_url},
+            )
         else:
-            results = self.objects_api.list("object")["results"]
-        return factory(Object, results)
+            response = self.objects_api_client.request(
+                "get", urljoin(base=self.objects_api_client.base_url, url="objects")
+            )
+
+        response.raise_for_status()
+        results = response.json().get("results")
+
+        return factory(Object, results) if results else []
 
     def get_object_types(self) -> list:
         """
@@ -57,5 +69,12 @@ class Client:
 
         :returns: Returns a list of ObjectType dataclasses
         """
-        results = self.object_types_api.list("objecttype")["results"]
-        return factory(ObjectType, results)
+        response = self.object_types_api_client.request(
+            method="get",
+            url=urljoin(self.object_types_api_client.base_url, "objecttypes"),
+        )
+
+        response.raise_for_status()
+        results = response.json().get("results")
+
+        return factory(ObjectType, results) if results else []
