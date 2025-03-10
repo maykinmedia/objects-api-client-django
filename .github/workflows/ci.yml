@@ -16,7 +16,11 @@ jobs:
     strategy:
       matrix:
         python: ['3.9', '3.10', '3.11']
+<<<<<<< Updated upstream
         django: ['3.2', '4.0', '4.2']
+=======
+        django: ['3.2', '4.0']
+>>>>>>> Stashed changes
     name: Run the test suite (Python ${{ matrix.python }}, Django ${{ matrix.django }})
 
     steps:
