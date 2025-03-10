@@ -2,9 +2,9 @@ import logging
 from typing import Tuple
 
 from requests.exceptions import HTTPError
+from zgw_consumers.api_models.base import ZGWModel, factory
 
 from .dataclasses import Object, ObjectRecord, ObjectType, ObjectTypeVersion
-from zgw_consumers.api_models.base import ZGWModel, factory
 
 logger = logging.getLogger(__name__)
 
