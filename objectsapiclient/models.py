@@ -22,12 +22,20 @@ class Configuration(SingletonModel):
     The Objects API configuration to retrieve and render forms.
     """
 
-    objects_api_service = models.ForeignKey("zgw_consumers.Service", on_delete=models.CASCADE,
-                                            null=True, blank=True,
-                                            related_name="objects_api_service")
-    object_type_api_service = models.ForeignKey("zgw_consumers.Service", on_delete=models.CASCADE,
-                                                null=True, blank=True,                                                
-                                                related_name="object_type_api_service")
+    objects_api_service = models.ForeignKey(
+        "zgw_consumers.Service",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="objects_api_service",
+    )
+    object_type_api_service = models.ForeignKey(
+        "zgw_consumers.Service",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="object_type_api_service",
+    )
 
     class Meta:
         verbose_name = _("Objects API client configuration")
@@ -53,7 +61,6 @@ class ObjectTypeField(models.SlugField):
             **kwargs,
         )
 
-
     def formfield(self, **kwargs):
         defaults = {
             "required": not self.blank,
@@ -74,7 +81,7 @@ class ObjectTypeField(models.SlugField):
         limit_choices_to=None,
         ordering=(),
     ):
-        cache_key = f"objectsapiclient_objecttypes"
+        cache_key = "objectsapiclient_objecttypes"
 
         choices = cache.get(cache_key)
         if choices is None:
