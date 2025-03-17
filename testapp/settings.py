@@ -17,7 +17,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.admin",
+    "requests",
     "solo",
+    "simple_certmanager",
+    "zgw_consumers",
     "objectsapiclient",
     "testapp",
 ]
