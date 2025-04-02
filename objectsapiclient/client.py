@@ -18,9 +18,6 @@ class Client:
             service=object_types_api_service
         )
 
-    def has_config(self) -> bool:
-        return self.objects_api_client and self.object_types_api_client
-
     def is_healthy(self) -> Tuple[bool, str]:
         """ """
         try:

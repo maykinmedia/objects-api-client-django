@@ -10,7 +10,7 @@ def get_object_type_choices(client=None, use_uuids=False):
         config = Configuration.get_solo()
         client = config.client
 
-    if not client.has_config():
+    if not client:
         return []
 
     objecttypes = client.get_object_types()
