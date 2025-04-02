@@ -5,7 +5,6 @@ from django.db import models
 from django.db.models.fields import BLANK_CHOICE_DASH
 from django.forms.fields import TypedChoiceField
 from django.forms.widgets import Select
-from django.utils.functional import cached_property
 from django.utils.text import capfirst
 from django.utils.translation import gettext_lazy as _
 
@@ -43,9 +42,12 @@ class Configuration(SingletonModel):
     def __str__(self):
         return "Objects API client configuration"
 
-    @cached_property
+    @property
     def client(self):
-        return Client(self.objects_api_service, self.object_type_api_service)
+        try:
+            return Client(self.objects_api_service, self.object_type_api_service)
+        except AttributeError:
+            return None
 
 
 class ObjectTypeField(models.SlugField):
