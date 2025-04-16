@@ -1,40 +1,55 @@
 import logging
-from typing import Tuple
+from typing import cast
 from urllib.parse import urljoin
+
+from django.core.exceptions import ImproperlyConfigured
 
 from requests.exceptions import HTTPError
 from zgw_consumers.api_models.base import factory
 from zgw_consumers.client import build_client as build_zgw_client
 
 from .dataclasses import Object, ObjectType
+from .models import ObjectsClientConfiguration
 
 logger = logging.getLogger(__name__)
 
 
 class Client:
-    def __init__(self, objects_api_service, object_types_api_service):
-        self.objects_api_client = build_zgw_client(service=objects_api_service)
-        self.object_types_api_client = build_zgw_client(
-            service=object_types_api_service
+    def __init__(self, config: ObjectsClientConfiguration | None = None):
+        self.config = cast(
+            ObjectsClientConfiguration, config or ObjectsClientConfiguration.get_solo()
         )
 
-    def is_healthy(self) -> Tuple[bool, str]:
-        """ """
-        try:
-            # We do a head request to actually hit a protected endpoint without
-            # getting a whole bunch of data.
-            self.get_objects()
-            return (True, "")
-        except HTTPError as e:
-            message = f"Server did not return a valid response ({e})."
-        except Exception as e:
-            logger.exception(e)
-            message = str(e)
+        if (
+            not self.config.objects_api_service_config
+            or not self.config.object_type_api_service_config
+        ):
+            raise ImproperlyConfigured(
+                "ObjectsService cannot be instantiated without configurations for "
+                "Objects API and Objecttypes API"
+            )
 
-        return (False, message)
+        self.objects = build_zgw_client(service=self.config.objects_api_service_config)
+        self.object_types = build_zgw_client(
+            service=self.config.object_type_api_service_config
+        )
+
+    def is_healthy(self) -> tuple[bool, str]:
+        try:
+            self.objects_api_client.request(
+                "head",
+                urljoin(base=self.objects_api_service_config.api_root, url="objects"),
+            )
+            return True, ""
+        except HTTPError as exc:
+            logger.exception("Server did not return a valid response (%s)", exc)
+            return False, str(exc)
+        except Exception as exc:
+            logger.exception("Error making head request to objects api (%s)", exc)
+            return False, str(exc)
 
     def object_type_uuid_to_url(self, uuid):
-        return "{}objecttypes/{}/".format(self.object_types_api_client.base_url, uuid)
+        return "{}objecttypes/{}/".format(self.object_types.base_url, uuid)
 
     def get_objects(self, object_type_uuid=None) -> list:
         """
@@ -66,9 +81,9 @@ class Client:
 
         :returns: Returns a list of ObjectType dataclasses
         """
-        response = self.object_types_api_client.request(
+        response = self.object_types.request(
             method="get",
-            url=urljoin(self.object_types_api_client.base_url, "objecttypes"),
+            url=urljoin(self.object_types.base_url, "objecttypes"),
         )
 
         response.raise_for_status()

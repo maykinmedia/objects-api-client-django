@@ -3,13 +3,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def get_object_type_choices(client=None, use_uuids=False):
-    if client is None:
-        from .models import Configuration
+def get_object_type_choices(use_uuids=False):
+    from .client import Client
 
-        config = Configuration.get_solo()
-        client = config.client
-
+    client = Client()
     if not client:
         return []
 

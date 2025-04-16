@@ -10,30 +10,29 @@ from django.utils.translation import gettext_lazy as _
 
 from solo.models import SingletonModel
 
-from .client import Client
 from .utils import get_object_type_choices
 
 logger = logging.getLogger(__name__)
 
 
-class Configuration(SingletonModel):
+class ObjectsClientConfiguration(SingletonModel):
     """
-    The Objects API configuration to retrieve and render forms.
+    The Objects API client configuration to retrieve and render forms.
     """
 
-    objects_api_service = models.ForeignKey(
+    objects_api_service_config = models.ForeignKey(
         "zgw_consumers.Service",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        related_name="objects_api_service",
+        related_name="objects_api_service_config",
     )
-    object_type_api_service = models.ForeignKey(
+    object_type_api_service_config = models.ForeignKey(
         "zgw_consumers.Service",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        related_name="object_type_api_service",
+        related_name="object_type_api_service_config",
     )
 
     class Meta:
@@ -41,13 +40,6 @@ class Configuration(SingletonModel):
 
     def __str__(self):
         return "Objects API client configuration"
-
-    @property
-    def client(self):
-        try:
-            return Client(self.objects_api_service, self.object_type_api_service)
-        except AttributeError:
-            return None
 
 
 class ObjectTypeField(models.SlugField):
