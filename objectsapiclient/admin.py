@@ -3,8 +3,8 @@ from django.utils.html import format_html
 
 from solo.admin import SingletonModelAdmin
 
-from .models import ObjectsClientConfiguration
 from .client import Client
+from .models import ObjectsClientConfiguration
 
 
 @admin.register(ObjectsClientConfiguration)

@@ -1,3 +1,4 @@
+import functools
 import logging
 
 from django.core.cache import cache
@@ -60,12 +61,10 @@ class ObjectTypeField(models.SlugField):
             "required": not self.blank,
             "label": capfirst(self.verbose_name),
             "help_text": self.help_text,
+            "choices": functools.partial(self.get_choices, include_blank=self.blank),
+            "coerce": self.to_python,
             "widget": Select,
         }
-
-        defaults["choices"] = self.get_choices(include_blank=self.blank)
-        defaults["coerce"] = self.to_python
-
         return TypedChoiceField(**defaults)
 
     def get_choices(
