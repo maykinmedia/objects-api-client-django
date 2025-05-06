@@ -34,4 +34,10 @@ class Migration(migrations.Migration):
                 to="zgw_consumers.service",
             ),
         ),
+        migrations.AlterModelOptions(
+            name="objectsapiserviceconfiguration",
+            options={
+                "verbose_name": "Objects API service configuration",
+            },
+        ),
     ]
