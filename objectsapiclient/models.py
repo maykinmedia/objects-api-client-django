@@ -2,7 +2,7 @@ import functools
 import logging
 
 from django.core.cache import cache
-from django.db import models
+from django.db import OperationalError, ProgrammingError, models
 from django.db.models.fields import BLANK_CHOICE_DASH
 from django.forms.fields import TypedChoiceField
 from django.forms.widgets import Select
@@ -93,3 +93,51 @@ class ObjectTypeField(models.SlugField):
                     choices = blank_choice + choices
 
         return choices
+
+
+class LazyObjectTypeField(ObjectTypeField):
+    """
+    Custom `ObjectTypeField` that fetches objecttype choices only if:
+        1. The database table exists (migrations have been run)
+        2. The Objects API services are actually configured
+    This prevents:
+        - Unnecessary HTTP requests at server startup
+        - Database errors when migrations haven't been run yet
+    """
+
+    def get_choices(
+        self,
+        include_blank=True,
+        blank_choice=BLANK_CHOICE_DASH,
+        limit_choices_to=None,
+        ordering=None,
+    ):
+        # Check if database table exists (migrations have been run)
+        # Prevents errors during startup before migrations are applied
+        try:
+            config = ObjectsClientConfiguration.get_solo()
+        except (ProgrammingError, OperationalError):
+            logger.info(
+                "objectsapiclient_configuration table does not exist yet, "
+                "skipping objecttypes fetch",
+            )
+            if include_blank:
+                return blank_choice
+            return []
+
+        # Check if Objects API services are configured
+        # Prevents HTTP requests when services aren't set up
+        if not config.objects_api_service or not config.object_type_api_service:
+            logger.info(
+                "Objects API services not configured, skipping objecttypes fetch"
+            )
+            if include_blank:
+                return blank_choice
+            return []
+
+        return super().get_choices(
+            include_blank=include_blank,
+            blank_choice=blank_choice,
+            limit_choices_to=limit_choices_to,
+            ordering=ordering or (),
+        )
