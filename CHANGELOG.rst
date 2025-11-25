@@ -2,6 +2,17 @@
 Changelog
 =========
 
+0.3.0
+=====
+
+*November 25, 2025*
+
+* Added lazy model field to prevent errors from HTTP requests during startup
+* Dropped support for Python 3.9/3.10 and Django 3.2; added support for
+  Python 3.11/3.12/3.13 and Django 4.2
+* Added missing metadata (long_description_content_type) to setup.cfg and
+  fixed syntax error in README that preventted PyPi publishing
+
 0.2.3
 =====
 
