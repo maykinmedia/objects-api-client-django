@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterModelOptions(
-            name="objectsapiserviceconfiguration",
+            name="configuration",
             options={
                 "verbose_name": "Objects API service configuration",
             },
