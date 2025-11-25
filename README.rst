@@ -6,7 +6,7 @@ Objects API Client (for Django)
 :Version: 0.1.0
 :Source: https://github.com/maykinmedia/objects-api-client-django
 :Keywords: Objects API, Client, Django
-:PythonVersion: 3.9
+:PythonVersion: 3.11
 
 |build-status|
 
@@ -23,8 +23,8 @@ Installation
 Requirements
 ------------
 
-* Python 3.9 or newer
-* Django 3.2 or newer
+* Python 3.11 or newer
+* Django 4.2 or newer
 
 
 Install
@@ -65,7 +65,7 @@ To use this with your project you need to follow these steps:
 Licence
 =======
 
-Copyright © `Maykin Media B.V.`_, 2023
+Copyright © `Maykin Media B.V.`_, 2025
 
 Licensed under the `MIT`_.
 
