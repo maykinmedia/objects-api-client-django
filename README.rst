@@ -10,8 +10,6 @@ Objects API Client (for Django)
 
 |build-status|
 
-|python-versions| |django-versions| |pypi-version|
-
 About
 =====
 
