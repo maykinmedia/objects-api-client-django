@@ -1,3 +1,87 @@
 [build-system]
-requires = ["setuptools >= 30.3.0"]  # version supporting setup.cfg]
+requires = ["setuptools >= 61.0"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "objects-api-client-django"
+version = "0.3.0"
+description = "Easily integrate Objects API in your Django application."
+readme = "README.rst"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "Maykin Media", email = "support@maykinmedia.nl"}
+]
+keywords = ["Objects API", "Client", "Django"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Framework :: Django",
+    "Framework :: Django :: 4.2",
+    "Intended Audience :: Developers",
+    "Operating System :: Unix",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "django >= 4.2",
+    "django-solo",
+    "requests",
+    "zgw_consumers",
+]
+
+[project.optional-dependencies]
+tests = [
+    "requests-mock",
+    "pytest",
+    "pytest-django",
+    "tox",
+    "isort",
+    "black",
+    "flake8",
+]
+pep8 = ["flake8"]
+coverage = ["pytest-cov"]
+docs = [
+    "sphinx",
+    "sphinx-rtd-theme",
+]
+release = [
+    "bumpversion",
+    "twine",
+]
+
+[project.urls]
+Homepage = "https://github.com/maykinmedia/objects-api-client-django"
+
+[tool.setuptools]
+zip-safe = false
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["objectsapiclient", "objectsapiclient.*"]
+
+#
+# Tool configurations
+#
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+DJANGO_SETTINGS_MODULE = "testapp.settings"
+
+[tool.isort]
+profile = "black"
+combine_as_imports = true
+default_section = "THIRDPARTY"
+include_trailing_comma = true
+line_length = 88
+multi_line_output = 3
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+skip = ["env", ".tox", ".history", ".eggs"]
+known_django = ["django"]
+known_first_party = ["objectsapiclient"]
+sections = ["FUTURE", "STDLIB", "DJANGO", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
