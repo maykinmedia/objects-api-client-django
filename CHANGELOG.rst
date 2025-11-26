@@ -2,6 +2,17 @@
 Changelog
 =========
 
+0.4.0
+=====
+
+*November 26, 2025*
+
+* Added ruff (replaces flake8, black, isort)
+* Added bump-my-version (replaces bumpversion)
+* Fixed version mismatch due to stale info in README
+* Updated README with instructions for developers
+* Removed unused docs section from pyproject.toml
+
 0.3.0
 =====
 
