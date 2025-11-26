@@ -8,7 +8,7 @@ Objects API Client (for Django)
 :Keywords: Objects API, Client, Django
 :PythonVersion: 3.11
 
-|build-status|
+|build-status| |python-versions| |django-versions| |pypi-version|
 
 About
 =====
@@ -74,3 +74,15 @@ Licensed under the `MIT`_.
 .. |build-status| image:: https://github.com/maykinmedia/objects-api-client-django/workflows/Run%20CI/badge.svg
     :alt: Build status
     :target: https://github.com/maykinmedia/objects-api-client-django/actions?query=workflow%3A%22Run+CI%22
+
+.. |python-versions| image:: https://img.shields.io/pypi/pyversions/objects-api-client-django.svg
+    :alt: Supported Python versions
+    :target: https://pypi.org/project/objects-api-client-django/
+
+.. |django-versions| image:: https://img.shields.io/pypi/djversions/objects-api-client-django.svg
+    :alt: Supported Django versions
+    :target: https://pypi.org/project/objects-api-client-django/
+
+.. |pypi-version| image:: https://img.shields.io/pypi/v/objects-api-client-django.svg
+    :alt: Latest version on PyPI
+    :target: https://pypi.org/project/objects-api-client-django/
