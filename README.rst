@@ -60,6 +60,40 @@ To use this with your project you need to follow these steps:
 #. Done.
 
 
+Development
+===========
+
+Install dependencies for development:
+
+.. code-block:: bash
+
+   pip install -e .[tests,release]
+
+Running tests:
+
+.. code-block:: bash
+
+   # Run all tests
+   pytest tests/
+
+   # Run all checks (tests for all Python/Django combinations + linting)
+   tox
+
+Linting and formatting:
+.. code-block:: bash
+
+   # Check code quality
+   ruff check .
+
+   # Auto-fix issues
+   ruff check --fix .
+
+   # Format code
+   ruff format .
+
+   # Run via tox
+   tox -e ruff
+
 Licence
 =======
 

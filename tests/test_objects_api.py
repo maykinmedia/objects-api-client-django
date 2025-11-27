@@ -73,7 +73,8 @@ class TestLazyObjectTypeField:
         self, mock_get_solo, include_blank, expected
     ):
         """
-        Test that get_choices returns blank choice or empty list when table doesn't exist
+        Test that get_choices returns blank choice or empty list when table
+        doesn't exist
         """
         mock_get_solo.side_effect = ProgrammingError("relation does not exist")
 
