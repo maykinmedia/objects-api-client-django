@@ -8,6 +8,7 @@ Changelog
 
 * Added CI check to publishing workflow to ensure the changelog is ready for
   release (must contain new version and release date)
+* Added missing migration to rename related fields on ObjectsClientConfiguration
 
 
 0.4.0 (2025-12-03)
