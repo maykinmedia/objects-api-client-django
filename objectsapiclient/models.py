@@ -44,7 +44,6 @@ class ObjectsClientConfiguration(SingletonModel):
 
 
 class ObjectTypeField(models.SlugField):
-
     def __init__(
         self, *args, max_length=100, db_index=False, allow_unicode=False, **kwargs
     ):

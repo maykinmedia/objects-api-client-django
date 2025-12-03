@@ -2,6 +2,17 @@
 Changelog
 =========
 
+
+[Unreleased]
+============
+
+* Added ruff (replaces flake8, black, isort)
+* Added bump-my-version (replaces bumpversion)
+* Fixed version mismatch due to stale info in README
+* Updated README with instructions for developers
+* Removed unused docs section from pyproject.toml
+
+
 0.3.0
 =====
 
@@ -12,6 +23,7 @@ Changelog
   Python 3.11/3.12/3.13 and Django 4.2
 * Added missing metadata (long_description_content_type) to setup.cfg and
   fixed syntax error in README that preventted PyPi publishing
+
 
 0.2.3
 =====
