@@ -16,6 +16,9 @@ from .utils import get_object_type_choices
 logger = logging.getLogger(__name__)
 
 
+OBJECTTYPE_CACHE_TIMEOUT = 60  # seconds
+
+
 class ObjectsClientConfiguration(SingletonModel):
     """
     The Objects API client configuration to retrieve and render forms.
@@ -68,10 +71,8 @@ class ObjectTypeField(models.SlugField):
 
     def get_choices(
         self,
-        include_blank=True,
-        blank_choice=BLANK_CHOICE_DASH,
-        limit_choices_to=None,
-        ordering=(),
+        include_blank: bool = True,
+        blank_choice: list[tuple[str, str]] = BLANK_CHOICE_DASH,
     ):
         cache_key = "objectsapiclient_objecttypes"
 
@@ -80,10 +81,12 @@ class ObjectTypeField(models.SlugField):
             try:
                 choices = get_object_type_choices()
             except Exception as e:
-                logger.exception(e)
+                logger.exception(
+                    "Failed to fetch object type choices from Objects API: %s", e
+                )
                 choices = []
             else:
-                cache.set(cache_key, choices, timeout=60)
+                cache.set(cache_key, choices, timeout=OBJECTTYPE_CACHE_TIMEOUT)
 
         if choices:
             if include_blank:
@@ -106,10 +109,8 @@ class LazyObjectTypeField(ObjectTypeField):
 
     def get_choices(
         self,
-        include_blank=True,
-        blank_choice=BLANK_CHOICE_DASH,
-        limit_choices_to=None,
-        ordering=None,
+        include_blank: bool = True,
+        blank_choice: list[tuple[str, str]] = BLANK_CHOICE_DASH,
     ):
         # Check if database table exists (migrations have been run)
         # Prevents errors during startup before migrations are applied
@@ -140,6 +141,4 @@ class LazyObjectTypeField(ObjectTypeField):
         return super().get_choices(
             include_blank=include_blank,
             blank_choice=blank_choice,
-            limit_choices_to=limit_choices_to,
-            ordering=ordering or (),
         )

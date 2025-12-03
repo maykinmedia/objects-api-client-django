@@ -53,9 +53,9 @@ class ObjectsAPIService:
             return False, str(exc)
 
     def object_type_uuid_to_url(self, uuid):
-        return "{}objecttypes/{}/".format(self.object_types_client.base_url, uuid)
+        return f"{self.object_types_client.base_url}objecttypes/{uuid}/"
 
-    def get_objects(self, object_type_uuid=None) -> list:
+    def get_objects(self, object_type_uuid: str | None = None) -> list[Object]:
         """
         Retrieve all available Objects from the Objects API.
         Generally you'd want to filter the results to a single ObjectType UUID.

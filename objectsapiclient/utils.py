@@ -3,12 +3,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def get_object_type_choices(use_uuids=False):
+def get_object_type_choices():
     from objectsapiclient.services import ObjectsAPIService
 
     service = ObjectsAPIService()
-    if not service:
-        return []
 
     objecttypes = service.get_object_types()
 

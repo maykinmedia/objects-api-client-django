@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
+from django.utils.safestring import SafeString
 
 from solo.admin import SingletonModelAdmin
 
@@ -23,7 +24,7 @@ class ObjectsClientConfigurationAdmin(SingletonModelAdmin):
     readonly_fields = ("status",)
 
     @admin.display
-    def status(self, obj):
+    def status(self, obj: ObjectsClientConfiguration) -> SafeString:
         from django.contrib.admin.templatetags.admin_list import _boolean_icon
 
         from .services import ObjectsAPIService

@@ -8,12 +8,12 @@ from django.db.models.fields import BLANK_CHOICE_DASH
 import pytest
 from requests.exceptions import HTTPError
 
-from objectsapiclient.services import ObjectsAPIService
 from objectsapiclient.models import (
     LazyObjectTypeField,
     ObjectsClientConfiguration,
     ObjectTypeField,
 )
+from objectsapiclient.services import ObjectsAPIService
 
 
 @pytest.fixture
@@ -406,7 +406,7 @@ class TestClients:
         test_uuid = "456"
         objects = service.get_objects(object_type_uuid=test_uuid)
 
-        # Verify the service was called with correct parameters including the type filter
+        # Verify the service was called with correct params including the type filter
         mock_objects_client.request.assert_called_once_with(
             "get",
             "https://objects.example.com/api/v1/objects",
