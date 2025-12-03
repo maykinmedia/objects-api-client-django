@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 #
 [project]
 name = "objects-api-client-django"
-version = "0.4.0"
+version = "0.4.1"
 description = "Easily integrate Objects API in your Django application."
 readme = "README.rst"
 requires-python = ">=3.11"
@@ -64,7 +64,7 @@ include-package-data = true
 include = ["objectsapiclient", "objectsapiclient.*"]
 
 [tool.bumpversion]
-current_version = "0.4.0"
+current_version = "0.4.1"
 tag = true
 tag_name = "v{new_version}"
 commit = false
