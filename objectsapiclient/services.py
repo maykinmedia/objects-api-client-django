@@ -14,7 +14,7 @@ from .models import ObjectsClientConfiguration
 logger = logging.getLogger(__name__)
 
 
-class Client:
+class ObjectsAPIService:
     def __init__(self, config: ObjectsClientConfiguration | None = None):
         self.config = cast(
             ObjectsClientConfiguration, config or ObjectsClientConfiguration.get_solo()
@@ -25,20 +25,24 @@ class Client:
             or not self.config.object_type_api_service_config
         ):
             raise ImproperlyConfigured(
-                "ObjectsService cannot be instantiated without configurations for "
+                "ObjectsAPIService cannot be instantiated without configurations for "
                 "Objects API and Objecttypes API"
             )
 
-        self.objects = build_zgw_client(service=self.config.objects_api_service_config)
-        self.object_types = build_zgw_client(
+        self.objects_client = build_zgw_client(
+            service=self.config.objects_api_service_config
+        )
+        self.object_types_client = build_zgw_client(
             service=self.config.object_type_api_service_config
         )
 
     def is_healthy(self) -> tuple[bool, str]:
         try:
-            self.objects_api_client.request(
+            self.objects_client.request(
                 "head",
-                urljoin(base=self.objects_api_service_config.api_root, url="objects"),
+                urljoin(
+                    base=self.config.objects_api_service_config.api_root, url="objects"
+                ),
             )
             return True, ""
         except HTTPError as exc:
@@ -49,7 +53,7 @@ class Client:
             return False, str(exc)
 
     def object_type_uuid_to_url(self, uuid):
-        return "{}objecttypes/{}/".format(self.object_types.base_url, uuid)
+        return "{}objecttypes/{}/".format(self.object_types_client.base_url, uuid)
 
     def get_objects(self, object_type_uuid=None) -> list:
         """
@@ -60,14 +64,14 @@ class Client:
         """
         if object_type_uuid:
             ot_url = self.object_type_uuid_to_url(object_type_uuid)
-            response = self.objects_api_client.request(
+            response = self.objects_client.request(
                 "get",
-                urljoin(base=self.objects_api_client.base_url, url="objects"),
+                urljoin(base=self.objects_client.base_url, url="objects"),
                 params={"type": ot_url},
             )
         else:
-            response = self.objects_api_client.request(
-                "get", urljoin(base=self.objects_api_client.base_url, url="objects")
+            response = self.objects_client.request(
+                "get", urljoin(base=self.objects_client.base_url, url="objects")
             )
 
         response.raise_for_status()
@@ -81,9 +85,9 @@ class Client:
 
         :returns: Returns a list of ObjectType dataclasses
         """
-        response = self.object_types.request(
+        response = self.object_types_client.request(
             method="get",
-            url=urljoin(self.object_types.base_url, "objecttypes"),
+            url=urljoin(self.object_types_client.base_url, "objecttypes"),
         )
 
         response.raise_for_status()

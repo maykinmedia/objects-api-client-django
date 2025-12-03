@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("objectsapiclient", "0003_rename_config_model_fields"),
         ("zgw_consumers", "0016_auto_20220818_1412"),

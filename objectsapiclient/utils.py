@@ -4,13 +4,13 @@ logger = logging.getLogger(__name__)
 
 
 def get_object_type_choices(use_uuids=False):
-    from .client import Client
+    from objectsapiclient.services import ObjectsAPIService
 
-    client = Client()
-    if not client:
+    service = ObjectsAPIService()
+    if not service:
         return []
 
-    objecttypes = client.get_object_types()
+    objecttypes = service.get_object_types()
 
     return sorted(
         [(item.uuid, item.name) for item in objecttypes],

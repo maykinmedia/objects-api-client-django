@@ -3,8 +3,18 @@ Changelog
 =========
 
 
-[0.4.1 (2025-12-03)]
-====================
+[Unreleased]
+============
+
+* Fixed bug where incorrect attributes where used in get_healthy() and
+  get_objects() (the bug was introduced in an earlier refactor in which these
+  calls were overlooked)
+* Fixed bug where incorrect fields where used to check if API services are
+  configured.
+
+
+0.4.1 (2025-12-03)
+==================
 
 * Added CI check to publishing workflow to ensure the changelog is ready for
   release (must contain new version and release date)

@@ -3,12 +3,11 @@ from django.utils.html import format_html
 
 from solo.admin import SingletonModelAdmin
 
-from .client import Client
 from .models import ObjectsClientConfiguration
 
 
 @admin.register(ObjectsClientConfiguration)
-class ObjectsServiceConfigurationAdmin(SingletonModelAdmin):
+class ObjectsClientConfigurationAdmin(SingletonModelAdmin):
     fieldsets = (
         (
             None,
@@ -27,7 +26,9 @@ class ObjectsServiceConfigurationAdmin(SingletonModelAdmin):
     def status(self, obj):
         from django.contrib.admin.templatetags.admin_list import _boolean_icon
 
-        client = Client()
+        from .services import ObjectsAPIService
 
-        healthy, message = client.is_healthy()
+        service = ObjectsAPIService()
+
+        healthy, message = service.is_healthy()
         return format_html("{} {}", _boolean_icon(healthy), message)
