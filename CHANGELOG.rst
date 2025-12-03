@@ -6,10 +6,13 @@ Changelog
 [Unreleased]
 ============
 
-* Added check for missing migrations in CI
+* Cleaned up utility function get_object_type_choices() which had unused
+  parameter and made a useless check for None as result of instantiating
+  Client.
+* Added check for missing migrations in CI.
 * Fixed bug where incorrect attributes where used in get_healthy() and
   get_objects() (the bug was introduced in an earlier refactor in which these
-  calls were overlooked)
+  calls were overlooked).
 * Fixed bug where incorrect fields where used to check if API services are
   configured.
 
