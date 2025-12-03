@@ -50,7 +50,7 @@ class Client:
             logger.exception("Error making head request to objects api (%s)", exc)
             return False, str(exc)
 
-    def object_type_uuid_to_url(self, uuid):
+    def object_type_uuid_to_url(self, uuid) -> str:
         return "{}objecttypes/{}/".format(self.object_types.base_url, uuid)
 
     def get_objects(self, object_type_uuid=None) -> list:

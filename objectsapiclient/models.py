@@ -80,7 +80,9 @@ class ObjectTypeField(models.SlugField):
             try:
                 choices = get_object_type_choices()
             except Exception as e:
-                logger.exception(e)
+                logger.exception(
+                    "Failed to fetch object type choices from Objects API: %s", e
+                )
                 choices = []
             else:
                 cache.set(cache_key, choices, timeout=60)
