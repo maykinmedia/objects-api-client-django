@@ -28,3 +28,16 @@ jobs:
       - run: tox
         env:
           TOXENV: ruff
+
+  check-migrations:
+    name: Check for missing migrations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install tox
+      - name: Check for missing migrations
+        run: tox -e check-migrations
