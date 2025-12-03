@@ -6,7 +6,7 @@ class Migration(migrations.Migration):
         (
             "objectsapiclient",
             "0002_auto_20230917_1644",
-        ),  # update with your last migration
+        ),
     ]
 
     operations = [
