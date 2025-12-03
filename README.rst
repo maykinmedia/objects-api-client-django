@@ -3,7 +3,7 @@
 Objects API Client (for Django)
 ===============================
 
-:Version: 0.3.0
+:Version: 0.4.0
 :Source: https://github.com/maykinmedia/objects-api-client-django
 :Keywords: Objects API, Client, Django
 :PythonVersion: 3.11

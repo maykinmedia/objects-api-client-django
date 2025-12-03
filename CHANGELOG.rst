@@ -3,8 +3,8 @@ Changelog
 =========
 
 
-[Unreleased]
-============
+0.4.0 (2025-12-03)
+==================
 
 * Added ruff (replaces flake8, black, isort)
 * Added bump-my-version (replaces bumpversion)
