@@ -36,9 +36,11 @@ class Client:
 
     def is_healthy(self) -> tuple[bool, str]:
         try:
-            self.objects_api_client.request(
+            self.objects.request(
                 "head",
-                urljoin(base=self.objects_api_service_config.api_root, url="objects"),
+                urljoin(
+                    base=self.config.objects_api_service_config.api_root, url="objects"
+                ),
             )
             return True, ""
         except HTTPError as exc:
@@ -60,14 +62,14 @@ class Client:
         """
         if object_type_uuid:
             ot_url = self.object_type_uuid_to_url(object_type_uuid)
-            response = self.objects_api_client.request(
+            response = self.objects.request(
                 "get",
-                urljoin(base=self.objects_api_client.base_url, url="objects"),
+                urljoin(base=self.objects.base_url, url="objects"),
                 params={"type": ot_url},
             )
         else:
-            response = self.objects_api_client.request(
-                "get", urljoin(base=self.objects_api_client.base_url, url="objects")
+            response = self.objects.request(
+                "get", urljoin(base=self.objects.base_url, url="objects")
             )
 
         response.raise_for_status()

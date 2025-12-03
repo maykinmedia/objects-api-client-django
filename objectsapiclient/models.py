@@ -126,7 +126,10 @@ class LazyObjectTypeField(ObjectTypeField):
 
         # Check if Objects API services are configured
         # Prevents HTTP requests when services aren't set up
-        if not config.objects_api_service or not config.object_type_api_service:
+        if (
+            not config.objects_api_service_config
+            or not config.object_type_api_service_config
+        ):
             logger.info(
                 "Objects API services not configured, skipping objecttypes fetch"
             )
