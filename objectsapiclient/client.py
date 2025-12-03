@@ -4,6 +4,7 @@ from urllib.parse import urljoin
 
 from django.core.exceptions import ImproperlyConfigured
 
+import ape_pie
 from requests.exceptions import HTTPError
 from zgw_consumers.api_models.base import factory
 from zgw_consumers.client import build_client as build_zgw_client
@@ -29,8 +30,10 @@ class Client:
                 "Objects API and Objecttypes API"
             )
 
-        self.objects = build_zgw_client(service=self.config.objects_api_service_config)
-        self.object_types = build_zgw_client(
+        self.objects: ape_pie.APIClient = build_zgw_client(
+            service=self.config.objects_api_service_config
+        )
+        self.object_types: ape_pie.APIClient = build_zgw_client(
             service=self.config.object_type_api_service_config
         )
 
