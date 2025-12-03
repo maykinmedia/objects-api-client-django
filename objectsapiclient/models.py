@@ -80,7 +80,9 @@ class ObjectTypeField(models.SlugField):
             try:
                 choices = get_object_type_choices()
             except Exception as e:
-                logger.exception(e)
+                logger.exception(
+                    "Failed to fetch object type choices from Objects API: %s", e
+                )
                 choices = []
             else:
                 cache.set(cache_key, choices, timeout=60)
@@ -126,7 +128,10 @@ class LazyObjectTypeField(ObjectTypeField):
 
         # Check if Objects API services are configured
         # Prevents HTTP requests when services aren't set up
-        if not config.objects_api_service or not config.object_type_api_service:
+        if (
+            not config.objects_api_service_config
+            or not config.object_type_api_service_config
+        ):
             logger.info(
                 "Objects API services not configured, skipping objecttypes fetch"
             )

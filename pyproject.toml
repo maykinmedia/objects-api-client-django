@@ -32,6 +32,7 @@ classifiers = [
 dependencies = [
     "django >= 4.2",
     "django-solo",
+    "ape_pie",
     "requests",
     "zgw_consumers",
 ]

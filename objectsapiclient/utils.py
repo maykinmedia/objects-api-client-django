@@ -3,13 +3,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def get_object_type_choices(use_uuids=False):
+def get_object_type_choices():
     from .client import Client
 
     client = Client()
-    if not client:
-        return []
-
     objecttypes = client.get_object_types()
 
     return sorted(

@@ -4,6 +4,7 @@ from urllib.parse import urljoin
 
 from django.core.exceptions import ImproperlyConfigured
 
+import ape_pie
 from requests.exceptions import HTTPError
 from zgw_consumers.api_models.base import factory
 from zgw_consumers.client import build_client as build_zgw_client
@@ -29,16 +30,20 @@ class Client:
                 "Objects API and Objecttypes API"
             )
 
-        self.objects = build_zgw_client(service=self.config.objects_api_service_config)
-        self.object_types = build_zgw_client(
+        self.objects: ape_pie.APIClient = build_zgw_client(
+            service=self.config.objects_api_service_config
+        )
+        self.object_types: ape_pie.APIClient = build_zgw_client(
             service=self.config.object_type_api_service_config
         )
 
     def is_healthy(self) -> tuple[bool, str]:
         try:
-            self.objects_api_client.request(
+            self.objects.request(
                 "head",
-                urljoin(base=self.objects_api_service_config.api_root, url="objects"),
+                urljoin(
+                    base=self.config.objects_api_service_config.api_root, url="objects"
+                ),
             )
             return True, ""
         except HTTPError as exc:
@@ -48,7 +53,7 @@ class Client:
             logger.exception("Error making head request to objects api (%s)", exc)
             return False, str(exc)
 
-    def object_type_uuid_to_url(self, uuid):
+    def object_type_uuid_to_url(self, uuid) -> str:
         return "{}objecttypes/{}/".format(self.object_types.base_url, uuid)
 
     def get_objects(self, object_type_uuid=None) -> list:
@@ -60,14 +65,14 @@ class Client:
         """
         if object_type_uuid:
             ot_url = self.object_type_uuid_to_url(object_type_uuid)
-            response = self.objects_api_client.request(
+            response = self.objects.request(
                 "get",
-                urljoin(base=self.objects_api_client.base_url, url="objects"),
+                urljoin(base=self.objects.base_url, url="objects"),
                 params={"type": ot_url},
             )
         else:
-            response = self.objects_api_client.request(
-                "get", urljoin(base=self.objects_api_client.base_url, url="objects")
+            response = self.objects.request(
+                "get", urljoin(base=self.objects.base_url, url="objects")
             )
 
         response.raise_for_status()
