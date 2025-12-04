@@ -381,7 +381,17 @@ class TestObjectsAPIService:
                     "url": "https://objects.example.com/api/v1/objects/123",
                     "uuid": "123",
                     "type": "https://objecttypes.example.com/api/v1/objecttypes/456",
-                    "record": [],
+                    "record": {
+                        "index": 1,
+                        "typeVersion": 1,
+                        "data": {"name": "Test Object"},
+                        "geometry": None,
+                        "startAt": "2023-01-01",
+                        "endAt": None,
+                        "registrationAt": "2023-01-01",
+                        "correctionFor": None,
+                        "correctedBy": None,
+                    },
                 }
             ]
         }
@@ -424,7 +434,17 @@ class TestObjectsAPIService:
                     "url": "https://objects.example.com/api/v1/objects/123",
                     "uuid": "123",
                     "type": "https://objecttypes.example.com/api/v1/objecttypes/456",
-                    "record": [],
+                    "record": {
+                        "index": 1,
+                        "typeVersion": 1,
+                        "data": {"name": "Test Object with UUID"},
+                        "geometry": None,
+                        "startAt": "2023-01-01",
+                        "endAt": None,
+                        "registrationAt": "2023-01-01",
+                        "correctionFor": None,
+                        "correctedBy": None,
+                    },
                 }
             ]
         }
@@ -581,7 +601,7 @@ class TestObjectsAPIService:
                     "name": "Another Type",
                     "name_plural": "Another Types",
                     "description": "Another test object type",
-                    "data_classification": "internal",
+                    "data_classification": "intern",
                     "maintainer_organization": "Test Org 2",
                     "maintainer_department": "Test Dept 2",
                     "contact_person": "Jane Doe",

@@ -6,7 +6,6 @@ from django.core.exceptions import ImproperlyConfigured
 
 from ape_pie import APIClient
 from requests.exceptions import HTTPError
-from zgw_consumers.api_models.base import factory
 from zgw_consumers.client import build_client as build_zgw_client
 
 from .dataclasses import Object, ObjectType
@@ -61,7 +60,7 @@ class ObjectsAPIService:
         Retrieve all available Objects from the Objects API.
         Generally you'd want to filter the results to a single ObjectType UUID.
 
-        :returns: Returns a list of Object dataclasses
+        :returns: Returns a list of Object Pydantic models
         """
         if object_type_uuid:
             ot_url = self.object_type_uuid_to_url(object_type_uuid)
@@ -78,13 +77,13 @@ class ObjectsAPIService:
         response.raise_for_status()
         results = response.json().get("results")
 
-        return factory(Object, results) if results else []
+        return [Object.model_validate(obj) for obj in results] if results else []
 
-    def get_object_types(self) -> list:
+    def get_object_types(self) -> list[ObjectType]:
         """
         Retrieve all available Object Types
 
-        :returns: Returns a list of ObjectType dataclasses
+        :returns: Returns a list of ObjectType Pydantic models
         """
         response = self.object_types_client.request(
             method="get",
@@ -94,4 +93,4 @@ class ObjectsAPIService:
         response.raise_for_status()
         results = response.json().get("results")
 
-        return factory(ObjectType, results) if results else []
+        return [ObjectType.model_validate(obj) for obj in results] if results else []

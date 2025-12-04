@@ -33,6 +33,7 @@ dependencies = [
     "django >= 4.2",
     "django-solo",
     "ape_pie",
+    "pydantic >= 2.0",
     "requests",
     "zgw_consumers",
 ]
