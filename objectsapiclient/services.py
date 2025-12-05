@@ -5,10 +5,12 @@ from urllib.parse import urljoin
 from django.core.exceptions import ImproperlyConfigured
 
 from ape_pie import APIClient
+from pydantic import ValidationError
 from requests.exceptions import HTTPError
 from zgw_consumers.client import build_client as build_zgw_client
 
 from .dataclasses import Object, ObjectType
+from .exceptions import ObjectsAPIClientValidationError
 from .models import ObjectsClientConfiguration
 
 logger = logging.getLogger(__name__)
@@ -52,7 +54,7 @@ class ObjectsAPIService:
             logger.exception("Error making head request to objects api (%s)", exc)
             return False, str(exc)
 
-    def object_type_uuid_to_url(self, uuid):
+    def object_type_uuid_to_url(self, uuid: str) -> str:
         return f"{self.object_types_client.base_url}objecttypes/{uuid}/"
 
     def get_objects(self, object_type_uuid: str | None = None) -> list[Object]:
@@ -61,6 +63,7 @@ class ObjectsAPIService:
         Generally you'd want to filter the results to a single ObjectType UUID.
 
         :returns: Returns a list of Object Pydantic models
+        :raises: ObjectsAPIClientValidationError if API returns malformed data
         """
         if object_type_uuid:
             ot_url = self.object_type_uuid_to_url(object_type_uuid)
@@ -77,13 +80,26 @@ class ObjectsAPIService:
         response.raise_for_status()
         results = response.json().get("results")
 
-        return [Object.model_validate(obj) for obj in results] if results else []
+        if results is None:  # should not happen (cf. API spec), but let's guard anyways
+            logger.warning("Objects API unexpectedly returned None for results")
+            return []
+
+        try:
+            return [Object.model_validate(obj) for obj in results]
+        except ValidationError as exc:
+            logger.exception("Failed to validate Object data from Objects API")
+            raise ObjectsAPIClientValidationError(
+                "API returned invalid object data",
+                validation_error=exc,
+                model_type=Object,
+            ) from exc
 
     def get_object_types(self) -> list[ObjectType]:
         """
         Retrieve all available Object Types
 
         :returns: Returns a list of ObjectType Pydantic models
+        :raises: ObjectsAPIClientValidationError if API returns malformed data
         """
         response = self.object_types_client.request(
             method="get",
@@ -93,4 +109,16 @@ class ObjectsAPIService:
         response.raise_for_status()
         results = response.json().get("results")
 
-        return [ObjectType.model_validate(obj) for obj in results] if results else []
+        if results is None:  # should not happen (cf. API spec), but let's guard anyways
+            logger.exception("Objecttypes API unexpectedly returned None for results")
+            return []
+
+        try:
+            return [ObjectType.model_validate(obj) for obj in results]
+        except ValidationError as exc:
+            logger.exception("Failed to validate ObjectType data from Objecttype API")
+            raise ObjectsAPIClientValidationError(
+                "API returned invalid object data",
+                validation_error=exc,
+                model_type=ObjectType,
+            ) from exc

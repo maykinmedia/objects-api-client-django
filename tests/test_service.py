@@ -7,8 +7,10 @@ from django.db.models.fields import BLANK_CHOICE_DASH
 from django.db.utils import OperationalError, ProgrammingError
 
 import pytest
+from pydantic import ValidationError
 from requests.exceptions import HTTPError, Timeout
 
+from objectsapiclient.exceptions import ObjectsAPIClientValidationError
 from objectsapiclient.models import (
     LazyObjectTypeField,
     ObjectsClientConfiguration,
@@ -801,3 +803,77 @@ class TestObjectsAPIService:
             match="ObjectsAPIService cannot be instantiated without configurations",
         ):
             ObjectsAPIService(config=mock_config)
+
+    @patch("objectsapiclient.services.build_zgw_client")
+    def test_get_objects_validation_error(
+        self, mock_build_client, mock_config, mock_objects_client
+    ):
+        mock_build_client.return_value = mock_objects_client
+        mock_response = Mock()
+        mock_response.json.return_value = {
+            "results": [
+                {
+                    "url": "https://objects.example.com/api/v1/objects/123",
+                    "uuid": "123",
+                    "type": "https://objecttypes.example.com/api/v1/objecttypes/456",
+                    "record": {
+                        # Missing required fields: typeVersion, startAt
+                        "data": {"name": "Invalid Object"},
+                    },
+                }
+            ]
+        }
+        mock_objects_client.request.return_value = mock_response
+
+        service = ObjectsAPIService(config=mock_config)
+
+        with pytest.raises(ObjectsAPIClientValidationError) as exc_info:
+            service.get_objects()
+
+        # Verify the custom exception has the expected attributes
+        exception = exc_info.value
+        assert str(exception) == "API returned invalid object data"
+        assert exception.validation_error is not None
+        assert isinstance(exception.validation_error, ValidationError)
+        assert len(exception.errors) > 0
+        assert exception.model_type.__name__ == "Object"
+
+    @patch("objectsapiclient.services.build_zgw_client")
+    def test_get_object_types_validation_error(
+        self,
+        mock_build_client,
+        mock_config,
+        mock_objects_client,
+        mock_object_types_client,
+    ):
+        def build_client_side_effect(service):
+            if service == mock_config.objects_api_service_config:
+                return mock_objects_client
+            return mock_object_types_client
+
+        mock_build_client.side_effect = build_client_side_effect
+
+        mock_response = Mock()
+        mock_response.json.return_value = {
+            "results": [
+                {
+                    "uuid": "123",
+                    # Missing required fields: name, name_plural
+                    "description": "Invalid object type",
+                }
+            ]
+        }
+        mock_object_types_client.request.return_value = mock_response
+
+        service = ObjectsAPIService(config=mock_config)
+
+        with pytest.raises(ObjectsAPIClientValidationError) as exc_info:
+            service.get_object_types()
+
+        # Verify the custom exception has the expected attributes
+        exception = exc_info.value
+        assert str(exception) == "API returned invalid object data"
+        assert exception.validation_error is not None
+        assert isinstance(exception.validation_error, ValidationError)
+        assert len(exception.errors) > 0
+        assert exception.model_type.__name__ == "ObjectType"

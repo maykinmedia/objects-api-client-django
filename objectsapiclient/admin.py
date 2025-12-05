@@ -26,10 +26,13 @@ class ObjectsClientConfigurationAdmin(SingletonModelAdmin):
     @admin.display
     def status(self, obj: ObjectsClientConfiguration) -> SafeString:
         from django.contrib.admin.templatetags.admin_list import _boolean_icon
+        from django.core.exceptions import ImproperlyConfigured
 
-        from .services import ObjectsAPIService
+        from objectsapiclient.services import ObjectsAPIService
 
-        service = ObjectsAPIService()
-
-        healthy, message = service.is_healthy()
-        return format_html("{} {}", _boolean_icon(healthy), message)
+        try:
+            service = ObjectsAPIService()
+            healthy, message = service.is_healthy()
+            return format_html("{} {}", _boolean_icon(healthy), message)
+        except ImproperlyConfigured as exc:
+            return format_html("{} {}", _boolean_icon(False), str(exc))

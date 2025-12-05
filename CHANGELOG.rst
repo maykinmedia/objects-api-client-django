@@ -32,6 +32,7 @@ Maintenance and refactoring
   - Added/corrected type hints.
   - Replaced magic number for cache timeout with named constant.
   - Replaced old '.format()' syntax with modern f-strings.
+* Improved error-handling for API clients.
 
 
 0.4.1 (2025-12-03)
