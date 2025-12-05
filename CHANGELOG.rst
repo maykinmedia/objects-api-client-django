@@ -6,17 +6,32 @@ Changelog
 [Unreleased]
 ============
 
+New features
+------------
+
+* Replaced dataclasses with pydantic models for better validation.
+
+Bugfixes
+--------
+
+* Incorrect attributes where used in get_healthy() and get_objects()
+  (the bug was introduced in an earlier refactor in which these calls
+  were overlooked).
+* Incorrect fields where used to check if API services are configured.
+
+Maintenance and refactoring
+---------------------------
+
+* Added check for missing migrations in CI.
 * Cleaned up utility function get_object_type_choices() which had unused
   parameter and made a useless check for None as result of instantiating
   ObjectsAPIService.
-* Added check for missing migrations in CI.
-* Fixed bug where incorrect attributes where used in get_healthy() and
-  get_objects() (the bug was introduced in an earlier refactor in which these
-  calls were overlooked).
-* Fixed bug where incorrect fields where used to check if API services are
-  configured.
-* Replaced magic number for cache timeout with named constant
-* Replaced old '.format()' syntax with modern f-strings
+* Removed bump-my-version for version upgrades.
+* Improved test coverage for model fields, API clients, and utils.
+* Improved code quality:
+  - Added/corrected type hints.
+  - Replaced magic number for cache timeout with named constant.
+  - Replaced old '.format()' syntax with modern f-strings.
 
 
 0.4.1 (2025-12-03)
