@@ -33,6 +33,9 @@ Maintenance and refactoring
   - Replaced magic number for cache timeout with named constant.
   - Replaced old '.format()' syntax with modern f-strings.
 * Improved error-handling for API clients.
+* Renamed 'ObjectsClientConfiguration' to 'ObjectsAPIServiceConfiguration'
+  as well as the fields for the ZGW client configurations. This is lesss
+  confusing and captures the intent of the code better.
 
 
 0.4.1 (2025-12-03)

@@ -13,7 +13,7 @@ from requests.exceptions import HTTPError, Timeout
 from objectsapiclient.exceptions import ObjectsAPIClientValidationError
 from objectsapiclient.models import (
     LazyObjectTypeField,
-    ObjectsClientConfiguration,
+    ObjectsAPIServiceConfiguration,
     ObjectTypeField,
 )
 from objectsapiclient.services import ObjectsAPIService
@@ -71,7 +71,7 @@ class TestObjectTypeField:
 
 
 class TestLazyObjectTypeField:
-    @patch("objectsapiclient.models.ObjectsClientConfiguration.get_solo")
+    @patch("objectsapiclient.models.ObjectsAPIServiceConfiguration.get_solo")
     @pytest.mark.parametrize(
         "include_blank,expected", [(True, BLANK_CHOICE_DASH), (False, [])]
     )
@@ -90,7 +90,7 @@ class TestLazyObjectTypeField:
         assert choices == expected
         mock_get_solo.assert_called_once()
 
-    @patch("objectsapiclient.models.ObjectsClientConfiguration.get_solo")
+    @patch("objectsapiclient.models.ObjectsAPIServiceConfiguration.get_solo")
     @pytest.mark.parametrize(
         "include_blank,expected", [(True, BLANK_CHOICE_DASH), (False, [])]
     )
@@ -108,16 +108,16 @@ class TestLazyObjectTypeField:
         assert choices == expected
         mock_get_solo.assert_called_once()
 
-    @patch("objectsapiclient.models.ObjectsClientConfiguration.get_solo")
+    @patch("objectsapiclient.models.ObjectsAPIServiceConfiguration.get_solo")
     @pytest.mark.parametrize(
         "include_blank,expected", [(True, BLANK_CHOICE_DASH), (False, [])]
     )
     def test_get_choices_when_services_not_configured(
         self, mock_get_solo, include_blank, expected
     ):
-        mock_config = Mock(spec=ObjectsClientConfiguration)
-        mock_config.objects_api_service_config = None
-        mock_config.object_type_api_service_config = None
+        mock_config = Mock(spec=ObjectsAPIServiceConfiguration)
+        mock_config.objects_api_client_config = None
+        mock_config.objecttypes_api_client_config = None
         mock_get_solo.return_value = mock_config
 
         field = LazyObjectTypeField()
@@ -125,7 +125,7 @@ class TestLazyObjectTypeField:
 
         assert choices == expected
 
-    @patch("objectsapiclient.models.ObjectsClientConfiguration.get_solo")
+    @patch("objectsapiclient.models.ObjectsAPIServiceConfiguration.get_solo")
     @pytest.mark.parametrize(
         "objects_api,object_type_api,include_blank,expected",
         [
@@ -143,9 +143,9 @@ class TestLazyObjectTypeField:
         include_blank,
         expected,
     ):
-        mock_config = Mock(spec=ObjectsClientConfiguration)
-        mock_config.objects_api_service_config = objects_api
-        mock_config.object_type_api_service_config = object_type_api
+        mock_config = Mock(spec=ObjectsAPIServiceConfiguration)
+        mock_config.objects_api_client_config = objects_api
+        mock_config.objecttypes_api_client_config = object_type_api
         mock_get_solo.return_value = mock_config
 
         field = LazyObjectTypeField()
@@ -154,7 +154,7 @@ class TestLazyObjectTypeField:
         assert choices == expected
 
     @patch("objectsapiclient.models.get_object_type_choices")
-    @patch("objectsapiclient.models.ObjectsClientConfiguration.get_solo")
+    @patch("objectsapiclient.models.ObjectsAPIServiceConfiguration.get_solo")
     @pytest.mark.parametrize(
         "include_blank,expected",
         [
@@ -165,9 +165,9 @@ class TestLazyObjectTypeField:
     def test_get_choices_when_fully_configured(
         self, mock_get_solo, mock_get_choices, clear_cache, include_blank, expected
     ):
-        mock_config = Mock(spec=ObjectsClientConfiguration)
-        mock_config.objects_api_service_config = Mock()
-        mock_config.object_type_api_service_config = Mock()
+        mock_config = Mock(spec=ObjectsAPIServiceConfiguration)
+        mock_config.objects_api_client_config = Mock()
+        mock_config.objecttypes_api_client_config = Mock()
         mock_get_solo.return_value = mock_config
 
         mock_get_choices.return_value = [
@@ -181,7 +181,7 @@ class TestLazyObjectTypeField:
         assert choices == expected
         mock_get_choices.assert_called_once()
 
-    @patch("objectsapiclient.models.ObjectsClientConfiguration.get_solo")
+    @patch("objectsapiclient.models.ObjectsAPIServiceConfiguration.get_solo")
     def test_database_error_prevention_during_migrations(self, mock_get_solo):
         """
         Test that LazyObjectTypeField prevents errors during migrations
@@ -196,16 +196,16 @@ class TestLazyObjectTypeField:
         assert choices == BLANK_CHOICE_DASH
 
     @patch("objectsapiclient.models.get_object_type_choices")
-    @patch("objectsapiclient.models.ObjectsClientConfiguration.get_solo")
+    @patch("objectsapiclient.models.ObjectsAPIServiceConfiguration.get_solo")
     def test_prevents_unnecessary_http_requests_on_startup(
         self, mock_get_solo, mock_get_choices
     ):
         """
         Test that LazyObjectTypeField doesn't make HTTP requests when not configured
         """
-        mock_config = Mock(spec=ObjectsClientConfiguration)
-        mock_config.objects_api_service_config = None
-        mock_config.object_type_api_service_config = None
+        mock_config = Mock(spec=ObjectsAPIServiceConfiguration)
+        mock_config.objects_api_client_config = None
+        mock_config.objecttypes_api_client_config = None
         mock_get_solo.return_value = mock_config
 
         field = LazyObjectTypeField()
@@ -215,18 +215,18 @@ class TestLazyObjectTypeField:
         mock_get_choices.assert_not_called()
 
     @patch("objectsapiclient.models.get_object_type_choices")
-    @patch("objectsapiclient.models.ObjectsClientConfiguration.get_solo")
+    @patch("objectsapiclient.models.ObjectsAPIServiceConfiguration.get_solo")
     def test_uses_correct_field_names_when_checking_configuration(
         self, mock_get_solo, mock_get_choices
     ):
         """
         Regression test 1 for accessing non-existent config.objects_api_service
-        instead of config.objects_api_service_config: no API services configured
+        instead of config.objects_api_client_config: no API services configured
         """
         # A SimpleNamespace object only has the exact attributes we set (unlike Mock)
         # Will raise AttributeError if code tries to access wrong attribute names
         mock_config = SimpleNamespace(
-            objects_api_service_config=None, object_type_api_service_config=None
+            objects_api_client_config=None, objecttypes_api_client_config=None
         )
 
         mock_get_solo.return_value = mock_config
@@ -242,13 +242,13 @@ class TestLazyObjectTypeField:
         mock_get_choices.assert_not_called()
 
     @patch("objectsapiclient.models.get_object_type_choices")
-    @patch("objectsapiclient.models.ObjectsClientConfiguration.get_solo")
+    @patch("objectsapiclient.models.ObjectsAPIServiceConfiguration.get_solo")
     def test_correctly_detects_configured_services(
         self, mock_get_solo, mock_get_choices, clear_cache
     ):
         """
         Regression test 2 for accessing non-existent config.objects_api_service
-        instead of config.objects_api_service_config: both API services configured
+        instead of config.objects_api_client_config: both API services configured
         """
         mock_service = Mock()
         mock_service.api_root = "https://example.com/api/"
@@ -256,8 +256,8 @@ class TestLazyObjectTypeField:
         # A SimpleNamespace object only has the exact attributes we set (unlike Mock)
         # Will raise AttributeError if code tries to access wrong attribute names
         mock_config = SimpleNamespace(
-            objects_api_service_config=mock_service,
-            object_type_api_service_config=mock_service,
+            objects_api_client_config=mock_service,
+            objecttypes_api_client_config=mock_service,
         )
 
         mock_get_solo.return_value = mock_config
@@ -280,17 +280,17 @@ class TestObjectsAPIService:
 
     @pytest.fixture
     def mock_config(self):
-        config = Mock(spec=ObjectsClientConfiguration)
+        config = Mock(spec=ObjectsAPIServiceConfiguration)
 
         # Mock the objects API service config
         objects_service = Mock()
         objects_service.api_root = "https://objects.example.com/api/v1/"
-        config.objects_api_service_config = objects_service
+        config.objects_api_client_config = objects_service
 
         # Mock the object types API service config
         object_types_service = Mock()
         object_types_service.api_root = "https://objecttypes.example.com/api/v1/"
-        config.object_type_api_service_config = object_types_service
+        config.objecttypes_api_client_config = object_types_service
 
         return config
 
@@ -302,8 +302,8 @@ class TestObjectsAPIService:
         return client
 
     @pytest.fixture
-    def mock_object_types_client(self):
-        """Mock for the ObjectTypes API client (becomes self.object_types_client)"""
+    def mock_objecttypes_client(self):
+        """Mock for the ObjectTypes API client (becomes self.objecttypes_client)"""
         client = Mock()
         client.base_url = "https://objecttypes.example.com/api/v1/"
         return client
@@ -407,6 +407,7 @@ class TestObjectsAPIService:
         mock_objects_client.request.assert_called_once_with(
             "get",
             "https://objects.example.com/api/v1/objects",
+            params=None,
         )
 
         # Verify response handling
@@ -420,12 +421,12 @@ class TestObjectsAPIService:
         mock_build_client,
         mock_config,
         mock_objects_client,
-        mock_object_types_client,
+        mock_objecttypes_client,
     ):
         def build_client_side_effect(service):
-            if service == mock_config.objects_api_service_config:
+            if service == mock_config.objects_api_client_config:
                 return mock_objects_client
-            return mock_object_types_client
+            return mock_objecttypes_client
 
         mock_build_client.side_effect = build_client_side_effect
 
@@ -539,12 +540,12 @@ class TestObjectsAPIService:
         mock_build_client,
         mock_config,
         mock_objects_client,
-        mock_object_types_client,
+        mock_objecttypes_client,
     ):
         def build_client_side_effect(service):
-            if service == mock_config.objects_api_service_config:
+            if service == mock_config.objects_api_client_config:
                 return mock_objects_client
-            return mock_object_types_client
+            return mock_objecttypes_client
 
         mock_build_client.side_effect = build_client_side_effect
 
@@ -563,12 +564,12 @@ class TestObjectsAPIService:
         mock_build_client,
         mock_config,
         mock_objects_client,
-        mock_object_types_client,
+        mock_objecttypes_client,
     ):
         def build_client_side_effect(service):
-            if service == mock_config.objects_api_service_config:
+            if service == mock_config.objects_api_client_config:
                 return mock_objects_client
-            return mock_object_types_client
+            return mock_objecttypes_client
 
         mock_build_client.side_effect = build_client_side_effect
 
@@ -620,14 +621,14 @@ class TestObjectsAPIService:
                 },
             ]
         }
-        mock_object_types_client.request.return_value = mock_response
+        mock_objecttypes_client.request.return_value = mock_response
 
         # Create service and call get_object_types
         service = ObjectsAPIService(config=mock_config)
         object_types = service.get_object_types()
 
         # Verify the object_types service was called with correct parameters
-        mock_object_types_client.request.assert_called_once_with(
+        mock_objecttypes_client.request.assert_called_once_with(
             method="get",
             url="https://objecttypes.example.com/api/v1/objecttypes",
         )
@@ -648,18 +649,18 @@ class TestObjectsAPIService:
         mock_build_client,
         mock_config,
         mock_objects_client,
-        mock_object_types_client,
+        mock_objecttypes_client,
     ):
         def build_client_side_effect(service):
-            if service == mock_config.objects_api_service_config:
+            if service == mock_config.objects_api_client_config:
                 return mock_objects_client
-            return mock_object_types_client
+            return mock_objecttypes_client
 
         mock_build_client.side_effect = build_client_side_effect
 
         mock_response = Mock()
         mock_response.json.return_value = {"results": []}
-        mock_object_types_client.request.return_value = mock_response
+        mock_objecttypes_client.request.return_value = mock_response
 
         service = ObjectsAPIService(config=mock_config)
         object_types = service.get_object_types()
@@ -673,18 +674,18 @@ class TestObjectsAPIService:
         mock_build_client,
         mock_config,
         mock_objects_client,
-        mock_object_types_client,
+        mock_objecttypes_client,
     ):
         def build_client_side_effect(service):
-            if service == mock_config.objects_api_service_config:
+            if service == mock_config.objects_api_client_config:
                 return mock_objects_client
-            return mock_object_types_client
+            return mock_objecttypes_client
 
         mock_build_client.side_effect = build_client_side_effect
 
         mock_response = Mock()
         mock_response.json.return_value = {"results": None}
-        mock_object_types_client.request.return_value = mock_response
+        mock_objecttypes_client.request.return_value = mock_response
 
         service = ObjectsAPIService(config=mock_config)
         object_types = service.get_object_types()
@@ -697,25 +698,25 @@ class TestObjectsAPIService:
         mock_build_client,
         mock_config,
         mock_objects_client,
-        mock_object_types_client,
+        mock_objecttypes_client,
     ):
         def build_client_side_effect(service):
-            if service == mock_config.objects_api_service_config:
+            if service == mock_config.objects_api_client_config:
                 return mock_objects_client
-            return mock_object_types_client
+            return mock_objecttypes_client
 
         mock_build_client.side_effect = build_client_side_effect
 
         mock_response = Mock()
         mock_response.raise_for_status.side_effect = HTTPError("404 Not Found")
-        mock_object_types_client.request.return_value = mock_response
+        mock_objecttypes_client.request.return_value = mock_response
 
         service = ObjectsAPIService(config=mock_config)
 
         with pytest.raises(HTTPError, match="404 Not Found"):
             service.get_object_types()
 
-        mock_object_types_client.request.assert_called_once()
+        mock_objecttypes_client.request.assert_called_once()
 
     @patch("objectsapiclient.services.build_zgw_client")
     def test_object_type_uuid_to_url(
@@ -723,12 +724,12 @@ class TestObjectsAPIService:
         mock_build_client,
         mock_config,
         mock_objects_client,
-        mock_object_types_client,
+        mock_objecttypes_client,
     ):
         def build_client_side_effect(service):
-            if service == mock_config.objects_api_service_config:
+            if service == mock_config.objects_api_client_config:
                 return mock_objects_client
-            return mock_object_types_client
+            return mock_objecttypes_client
 
         mock_build_client.side_effect = build_client_side_effect
 
@@ -743,7 +744,7 @@ class TestObjectsAPIService:
         )
 
     @patch("objectsapiclient.services.build_zgw_client")
-    @patch("objectsapiclient.services.ObjectsClientConfiguration.get_solo")
+    @patch("objectsapiclient.services.ObjectsAPIServiceConfiguration.get_solo")
     def test_client_initialization_with_explicit_config(
         self, mock_get_solo, mock_build_client, mock_config
     ):
@@ -756,18 +757,18 @@ class TestObjectsAPIService:
         assert service.config == mock_config
 
     @patch("objectsapiclient.services.build_zgw_client")
-    @patch("objectsapiclient.services.ObjectsClientConfiguration.get_solo")
+    @patch("objectsapiclient.services.ObjectsAPIServiceConfiguration.get_solo")
     def test_client_initialization_without_config_uses_get_solo(
         self, mock_get_solo, mock_build_client
     ):
-        mock_config = Mock(spec=ObjectsClientConfiguration)
+        mock_config = Mock(spec=ObjectsAPIServiceConfiguration)
         objects_service = Mock()
         objects_service.api_root = "https://objects.example.com/api/v1/"
-        mock_config.objects_api_service_config = objects_service
+        mock_config.objects_api_client_config = objects_service
 
         object_types_service = Mock()
         object_types_service.api_root = "https://objecttypes.example.com/api/v1/"
-        mock_config.object_type_api_service_config = object_types_service
+        mock_config.objecttypes_api_client_config = object_types_service
 
         mock_get_solo.return_value = mock_config
 
@@ -794,9 +795,9 @@ class TestObjectsAPIService:
         mock_objects_api,
         mock_object_type_api,
     ):
-        mock_config = Mock(spec=ObjectsClientConfiguration)
-        mock_config.objects_api_service_config = mock_objects_api
-        mock_config.object_type_api_service_config = mock_object_type_api
+        mock_config = Mock(spec=ObjectsAPIServiceConfiguration)
+        mock_config.objects_api_client_config = mock_objects_api
+        mock_config.objecttypes_api_client_config = mock_object_type_api
 
         with pytest.raises(
             ImproperlyConfigured,
@@ -844,12 +845,12 @@ class TestObjectsAPIService:
         mock_build_client,
         mock_config,
         mock_objects_client,
-        mock_object_types_client,
+        mock_objecttypes_client,
     ):
         def build_client_side_effect(service):
-            if service == mock_config.objects_api_service_config:
+            if service == mock_config.objects_api_client_config:
                 return mock_objects_client
-            return mock_object_types_client
+            return mock_objecttypes_client
 
         mock_build_client.side_effect = build_client_side_effect
 
@@ -863,7 +864,7 @@ class TestObjectsAPIService:
                 }
             ]
         }
-        mock_object_types_client.request.return_value = mock_response
+        mock_objecttypes_client.request.return_value = mock_response
 
         service = ObjectsAPIService(config=mock_config)
 

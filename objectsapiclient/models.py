@@ -19,31 +19,31 @@ logger = logging.getLogger(__name__)
 OBJECTTYPE_CACHE_TIMEOUT = 60  # seconds
 
 
-class ObjectsClientConfiguration(SingletonModel):
+class ObjectsAPIServiceConfiguration(SingletonModel):
     """
-    The Objects API client configuration to retrieve and render forms.
+    The Objects API service configuration to retrieve and render forms.
     """
 
-    objects_api_service_config = models.ForeignKey(
+    objects_api_client_config = models.ForeignKey(
         "zgw_consumers.Service",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        related_name="objects_api_service_config",
+        related_name="objects_api_client_config",
     )
-    object_type_api_service_config = models.ForeignKey(
+    objecttypes_api_client_config = models.ForeignKey(
         "zgw_consumers.Service",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        related_name="object_type_api_service_config",
+        related_name="objecttypes_api_client_config",
     )
 
     class Meta:
-        verbose_name = _("Objects API client configuration")
+        verbose_name = _("Objects API service configuration")
 
     def __str__(self):
-        return "Objects API client configuration"
+        return "Objects API service configuration"
 
 
 class ObjectTypeField(models.SlugField):
@@ -115,7 +115,7 @@ class LazyObjectTypeField(ObjectTypeField):
         # Check if database table exists (migrations have been run)
         # Prevents errors during startup before migrations are applied
         try:
-            config = ObjectsClientConfiguration.get_solo()
+            config = ObjectsAPIServiceConfiguration.get_solo()
         except (ProgrammingError, OperationalError):
             logger.info(
                 "objectsapiclient_configuration table does not exist yet, "
@@ -128,8 +128,8 @@ class LazyObjectTypeField(ObjectTypeField):
         # Check if Objects API services are configured
         # Prevents HTTP requests when services aren't set up
         if (
-            not config.objects_api_service_config
-            or not config.object_type_api_service_config
+            not config.objects_api_client_config
+            or not config.objecttypes_api_client_config
         ):
             logger.info(
                 "Objects API services not configured, skipping objecttypes fetch"

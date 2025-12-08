@@ -12,7 +12,7 @@ from requests.exceptions import HTTPError
 
 from objectsapiclient.models import (
     LazyObjectTypeField,
-    ObjectsClientConfiguration,
+    ObjectsAPIServiceConfiguration,
     ObjectTypeField,
 )
 
@@ -203,7 +203,7 @@ class TestObjectTypeField:
 
 
 class TestLazyObjectTypeField:
-    @patch("objectsapiclient.models.ObjectsClientConfiguration.get_solo")
+    @patch("objectsapiclient.models.ObjectsAPIServiceConfiguration.get_solo")
     @pytest.mark.parametrize(
         "include_blank,expected", [(True, BLANK_CHOICE_DASH), (False, [])]
     )
@@ -222,7 +222,7 @@ class TestLazyObjectTypeField:
         assert choices == expected
         mock_get_solo.assert_called_once()
 
-    @patch("objectsapiclient.models.ObjectsClientConfiguration.get_solo")
+    @patch("objectsapiclient.models.ObjectsAPIServiceConfiguration.get_solo")
     @pytest.mark.parametrize(
         "include_blank,expected", [(True, BLANK_CHOICE_DASH), (False, [])]
     )
@@ -240,16 +240,16 @@ class TestLazyObjectTypeField:
         assert choices == expected
         mock_get_solo.assert_called_once()
 
-    @patch("objectsapiclient.models.ObjectsClientConfiguration.get_solo")
+    @patch("objectsapiclient.models.ObjectsAPIServiceConfiguration.get_solo")
     @pytest.mark.parametrize(
         "include_blank,expected", [(True, BLANK_CHOICE_DASH), (False, [])]
     )
     def test_get_choices_when_services_not_configured(
         self, mock_get_solo, include_blank, expected
     ):
-        mock_config = Mock(spec=ObjectsClientConfiguration)
-        mock_config.objects_api_service_config = None
-        mock_config.object_type_api_service_config = None
+        mock_config = Mock(spec=ObjectsAPIServiceConfiguration)
+        mock_config.objects_api_client_config = None
+        mock_config.objecttypes_api_client_config = None
         mock_get_solo.return_value = mock_config
 
         field = LazyObjectTypeField()
@@ -257,7 +257,7 @@ class TestLazyObjectTypeField:
 
         assert choices == expected
 
-    @patch("objectsapiclient.models.ObjectsClientConfiguration.get_solo")
+    @patch("objectsapiclient.models.ObjectsAPIServiceConfiguration.get_solo")
     @pytest.mark.parametrize(
         "objects_api,object_type_api,include_blank,expected",
         [
@@ -275,9 +275,9 @@ class TestLazyObjectTypeField:
         include_blank,
         expected,
     ):
-        mock_config = Mock(spec=ObjectsClientConfiguration)
-        mock_config.objects_api_service_config = objects_api
-        mock_config.object_type_api_service_config = object_type_api
+        mock_config = Mock(spec=ObjectsAPIServiceConfiguration)
+        mock_config.objects_api_client_config = objects_api
+        mock_config.objecttypes_api_client_config = object_type_api
         mock_get_solo.return_value = mock_config
 
         field = LazyObjectTypeField()
@@ -286,7 +286,7 @@ class TestLazyObjectTypeField:
         assert choices == expected
 
     @patch("objectsapiclient.models.get_object_type_choices")
-    @patch("objectsapiclient.models.ObjectsClientConfiguration.get_solo")
+    @patch("objectsapiclient.models.ObjectsAPIServiceConfiguration.get_solo")
     @pytest.mark.parametrize(
         "include_blank,expected",
         [
@@ -297,9 +297,9 @@ class TestLazyObjectTypeField:
     def test_get_choices_when_fully_configured(
         self, mock_get_solo, mock_get_choices, clear_cache, include_blank, expected
     ):
-        mock_config = Mock(spec=ObjectsClientConfiguration)
-        mock_config.objects_api_service_config = Mock()
-        mock_config.object_type_api_service_config = Mock()
+        mock_config = Mock(spec=ObjectsAPIServiceConfiguration)
+        mock_config.objects_api_client_config = Mock()
+        mock_config.objecttypes_api_client_config = Mock()
         mock_get_solo.return_value = mock_config
 
         mock_get_choices.return_value = [
@@ -313,7 +313,7 @@ class TestLazyObjectTypeField:
         assert choices == expected
         mock_get_choices.assert_called_once()
 
-    @patch("objectsapiclient.models.ObjectsClientConfiguration.get_solo")
+    @patch("objectsapiclient.models.ObjectsAPIServiceConfiguration.get_solo")
     def test_database_error_prevention_during_migrations(self, mock_get_solo):
         """
         Test that LazyObjectTypeField prevents errors during migrations
@@ -328,16 +328,16 @@ class TestLazyObjectTypeField:
         assert choices == BLANK_CHOICE_DASH
 
     @patch("objectsapiclient.models.get_object_type_choices")
-    @patch("objectsapiclient.models.ObjectsClientConfiguration.get_solo")
+    @patch("objectsapiclient.models.ObjectsAPIServiceConfiguration.get_solo")
     def test_prevents_unnecessary_http_requests_on_startup(
         self, mock_get_solo, mock_get_choices
     ):
         """
         Test that LazyObjectTypeField doesn't make HTTP requests when not configured
         """
-        mock_config = Mock(spec=ObjectsClientConfiguration)
-        mock_config.objects_api_service_config = None
-        mock_config.object_type_api_service_config = None
+        mock_config = Mock(spec=ObjectsAPIServiceConfiguration)
+        mock_config.objects_api_client_config = None
+        mock_config.objecttypes_api_client_config = None
         mock_get_solo.return_value = mock_config
 
         field = LazyObjectTypeField()
@@ -347,18 +347,18 @@ class TestLazyObjectTypeField:
         mock_get_choices.assert_not_called()
 
     @patch("objectsapiclient.models.get_object_type_choices")
-    @patch("objectsapiclient.models.ObjectsClientConfiguration.get_solo")
+    @patch("objectsapiclient.models.ObjectsAPIServiceConfiguration.get_solo")
     def test_uses_correct_field_names_when_checking_configuration(
         self, mock_get_solo, mock_get_choices
     ):
         """
         Regression test 1 for accessing non-existent config.objects_api_service
-        instead of config.objects_api_service_config: no API services configured
+        instead of config.objects_api_client_config: no API services configured
         """
         # A SimpleNamespace object only has the exact attributes we set (unlike Mock)
         # Will raise AttributeError if code tries to access wrong attribute names
         mock_config = SimpleNamespace(
-            objects_api_service_config=None, object_type_api_service_config=None
+            objects_api_client_config=None, objecttypes_api_client_config=None
         )
 
         mock_get_solo.return_value = mock_config
@@ -374,13 +374,13 @@ class TestLazyObjectTypeField:
         mock_get_choices.assert_not_called()
 
     @patch("objectsapiclient.models.get_object_type_choices")
-    @patch("objectsapiclient.models.ObjectsClientConfiguration.get_solo")
+    @patch("objectsapiclient.models.ObjectsAPIServiceConfiguration.get_solo")
     def test_correctly_detects_configured_services(
         self, mock_get_solo, mock_get_choices, clear_cache
     ):
         """
         Regression test 2 for accessing non-existent config.objects_api_service
-        instead of config.objects_api_service_config: both API services configured
+        instead of config.objects_api_client_config: both API services configured
         """
         mock_service = Mock()
         mock_service.api_root = "https://example.com/api/"
@@ -388,8 +388,8 @@ class TestLazyObjectTypeField:
         # A SimpleNamespace object only has the exact attributes we set (unlike Mock)
         # Will raise AttributeError if code tries to access wrong attribute names
         mock_config = SimpleNamespace(
-            objects_api_service_config=mock_service,
-            object_type_api_service_config=mock_service,
+            objects_api_client_config=mock_service,
+            objecttypes_api_client_config=mock_service,
         )
 
         mock_get_solo.return_value = mock_config
