@@ -36,6 +36,8 @@ Maintenance and refactoring
 * Renamed 'ObjectsClientConfiguration' to 'ObjectsAPIServiceConfiguration'
   as well as the fields for the ZGW client configurations. This is lesss
   confusing and captures the intent of the code better.
+* Added 'default_auto_field' to app config and 'DEFAULT_AUTO_FIELD' to
+  testapp settings to silence warnings.
 
 
 0.4.1 (2025-12-03)
