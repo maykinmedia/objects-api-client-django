@@ -16,31 +16,34 @@ from .utils import get_object_type_choices
 logger = logging.getLogger(__name__)
 
 
-class ObjectsClientConfiguration(SingletonModel):
+OBJECTTYPE_CACHE_TIMEOUT = 60  # seconds
+
+
+class ObjectsAPIServiceConfiguration(SingletonModel):
     """
-    The Objects API client configuration to retrieve and render forms.
+    The Objects API service configuration to retrieve and render forms.
     """
 
-    objects_api_service_config = models.ForeignKey(
+    objects_api_client_config = models.ForeignKey(
         "zgw_consumers.Service",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        related_name="objects_api_service_config",
+        related_name="objects_api_client_config",
     )
-    object_type_api_service_config = models.ForeignKey(
+    objecttypes_api_client_config = models.ForeignKey(
         "zgw_consumers.Service",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        related_name="object_type_api_service_config",
+        related_name="objecttypes_api_client_config",
     )
 
     class Meta:
-        verbose_name = _("Objects API client configuration")
+        verbose_name = _("Objects API service configuration")
 
     def __str__(self):
-        return "Objects API client configuration"
+        return "Objects API service configuration"
 
 
 class ObjectTypeField(models.SlugField):
@@ -68,10 +71,8 @@ class ObjectTypeField(models.SlugField):
 
     def get_choices(
         self,
-        include_blank=True,
-        blank_choice=BLANK_CHOICE_DASH,
-        limit_choices_to=None,
-        ordering=(),
+        include_blank: bool = True,
+        blank_choice: list[tuple[str, str]] = BLANK_CHOICE_DASH,
     ):
         cache_key = "objectsapiclient_objecttypes"
 
@@ -80,10 +81,12 @@ class ObjectTypeField(models.SlugField):
             try:
                 choices = get_object_type_choices()
             except Exception as e:
-                logger.exception(e)
+                logger.exception(
+                    "Failed to fetch object type choices from Objects API: %s", e
+                )
                 choices = []
             else:
-                cache.set(cache_key, choices, timeout=60)
+                cache.set(cache_key, choices, timeout=OBJECTTYPE_CACHE_TIMEOUT)
 
         if choices:
             if include_blank:
@@ -106,15 +109,13 @@ class LazyObjectTypeField(ObjectTypeField):
 
     def get_choices(
         self,
-        include_blank=True,
-        blank_choice=BLANK_CHOICE_DASH,
-        limit_choices_to=None,
-        ordering=None,
+        include_blank: bool = True,
+        blank_choice: list[tuple[str, str]] = BLANK_CHOICE_DASH,
     ):
         # Check if database table exists (migrations have been run)
         # Prevents errors during startup before migrations are applied
         try:
-            config = ObjectsClientConfiguration.get_solo()
+            config = ObjectsAPIServiceConfiguration.get_solo()
         except (ProgrammingError, OperationalError):
             logger.info(
                 "objectsapiclient_configuration table does not exist yet, "
@@ -126,7 +127,10 @@ class LazyObjectTypeField(ObjectTypeField):
 
         # Check if Objects API services are configured
         # Prevents HTTP requests when services aren't set up
-        if not config.objects_api_service or not config.object_type_api_service:
+        if (
+            not config.objects_api_client_config
+            or not config.objecttypes_api_client_config
+        ):
             logger.info(
                 "Objects API services not configured, skipping objecttypes fetch"
             )
@@ -137,6 +141,4 @@ class LazyObjectTypeField(ObjectTypeField):
         return super().get_choices(
             include_blank=include_blank,
             blank_choice=blank_choice,
-            limit_choices_to=limit_choices_to,
-            ordering=ordering or (),
         )

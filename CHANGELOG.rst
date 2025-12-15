@@ -3,8 +3,45 @@ Changelog
 =========
 
 
-[0.4.1 (2025-12-03)]
-====================
+[Unreleased]
+============
+
+New features
+------------
+
+* Replaced dataclasses with pydantic models for better validation.
+
+Bugfixes
+--------
+
+* Incorrect attributes where used in get_healthy() and get_objects()
+  (the bug was introduced in an earlier refactor in which these calls
+  were overlooked).
+* Incorrect fields where used to check if API services are configured.
+
+Maintenance and refactoring
+---------------------------
+
+* Added check for missing migrations in CI.
+* Cleaned up utility function get_object_type_choices() which had unused
+  parameter and made a useless check for None as result of instantiating
+  ObjectsAPIService.
+* Removed bump-my-version for version upgrades.
+* Improved test coverage for model fields, API clients, and utils.
+* Improved code quality:
+  - Added/corrected type hints.
+  - Replaced magic number for cache timeout with named constant.
+  - Replaced old '.format()' syntax with modern f-strings.
+* Improved error-handling for API clients.
+* Renamed 'ObjectsClientConfiguration' to 'ObjectsAPIServiceConfiguration'
+  as well as the fields for the ZGW client configurations. This is lesss
+  confusing and captures the intent of the code better.
+* Added 'default_auto_field' to app config and 'DEFAULT_AUTO_FIELD' to
+  testapp settings to silence warnings.
+
+
+0.4.1 (2025-12-03)
+==================
 
 * Added CI check to publishing workflow to ensure the changelog is ready for
   release (must contain new version and release date)
